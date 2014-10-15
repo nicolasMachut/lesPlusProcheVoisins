@@ -3,43 +3,37 @@
 
     <script>
 
-
-        var couleurs = new Array(Array(100, 100, 100));
-        var carres = new Array(Array(50, 50, couleurs[0]));
+        var colors = new Array();
+        var squares = new Array();
 
         function init() {
-            var canvas = document.getElementById("canvas");
-            var context = canvas.getContext("2d");
-            var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
-            var pixels = imgData.data;
-            var pixelIndex = (y * canvas.width + x) * 4;
-            for (var x =0; x < canvas.width; x++) {
-                for (var y = 0; y < canvas.height; y++) {
-
-
-                    var pixelIndex = (y * canvas.width + x) * 4;
-                    pixels[pixelIndex] = carres[0][2][0];
-                    pixels[pixelIndex + 1] = carres[0][2][1];
-                    pixels[pixelIndex + 2] = carres[0][2][2];
-
-                    pixels[pixelIndex + 3] = 255;
-                }
-            }
-            context.putImageData(imgData, 0, 0);
-            dessinerCarre(50, 50, context);
-
+            colors.push(Array(100, 100, 100));
+            squares.push(Array(50, 50, colors[0]));
+            refreshPixelsColor();
         }
 
-
-
-        function addCarre(event) {
-            var context = canvas.getContext("2d");
+        function addSquare(event) {
+            
             var x = event.clientX;
             var y = event.clientY;
-            var random = [Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1)];
-            couleurs.push(random);
-            carres.push(new Array(x, y, couleurs[couleurs.length-1]));
-            dessinerCarre(x, y, context);
+            var randomColor = [Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1)];
+            colors.push(randomColor);
+            squares.push(new Array(x, y, colors[colors.length-1]));
+
+            refreshPixelsColor();
+        }
+
+        function drawSquares (context) {
+            for (var i = 0; i < squares.length; i++) {
+                context.rect(squares[i][0], squares[i][1], 5, 5);
+                context.fillStyle = "#000";
+                context.fill();
+            }
+        }
+
+        function refreshPixelsColor(){
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
             var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
             var pixels = imgData.data;
 
@@ -47,47 +41,31 @@
                 for (var y = 0; y < canvas.height; y++) {
                     var maxDistance = Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2)+1;
                     var tmp = 0;
-                    for (var i = 0; i < carres.length; i++) {
-                        var formulResult = Math.pow(x - carres[i][0], 2) + Math.pow(y - carres[i][1], 2);
-                        if (formulResult < maxDistance) {
-                            maxDistance = formulResult;
+                    for (var i = 0; i < squares.length; i++) {
+                        var distance = Math.pow(x - squares[i][0], 2) + Math.pow(y - squares[i][1], 2);
+                        if (distance < maxDistance) {
+                            maxDistance = distance;
                             tmp = i;
                         }
                     }
                     //On redessine le pixel
                     var pixelIndex = (y * canvas.width + x) * 4;
-                    pixels[pixelIndex] = carres[tmp][2][0];
-                    pixels[pixelIndex + 1] = carres[tmp][2][1];
-                    pixels[pixelIndex + 2] = carres[tmp][2][2];
+                    pixels[pixelIndex] = squares[tmp][2][0];
+                    pixels[pixelIndex + 1] = squares[tmp][2][1];
+                    pixels[pixelIndex + 2] = squares[tmp][2][2];
 
                     pixels[pixelIndex + 3] = 255;
                 }
+
             }
             context.putImageData(imgData, 0, 0);
-            dessinerLesCarres(context);
+            drawSquares(context);
         }
-
-        function dessinerCarre(x, y, context) {
-            context.rect(x, y, 5, 5);
-            context.fillStyle = "#000";
-            context.fill();
-        }
-
-        function dessinerLesCarres (context) {
-            for (var i = 0; i < carres.length; i++) {
-                dessinerCarre(carres[i][0], carres[i][1], context);
-            }
-        }
-
-
 
     </script>
 
 </head>
 <body onload="init();">
-
-<canvas id="canvas" width="200" height="200" onclick="addCarre(event)"></canvas>
-
-
+    <canvas id="canvas" width="200" height="200" onclick="addSquare(event)"></canvas>
 </body>
 </html>
