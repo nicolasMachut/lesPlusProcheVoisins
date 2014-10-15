@@ -6,9 +6,31 @@
         var colors = new Array();
         var squares = new Array();
 
+        function node (parent, orientation, x, y){
+            this.parentNode = null;
+            if(typeof(parent) != 'undefined'){
+                this.parentNode = parent;
+            }
+            this.orientation = orientation;
+            this.x = x;
+            this.y = y;
+            this.child = new Array(null, null); // 0 : au dessous OU a droite, 1 : en dessus OU a gauche
+
+            this.setChild = function(i, childNode){
+                this.child[i] = childNode;
+            }
+
+            this.getChild = function() {
+                return this.child;
+            }
+        }
+
         function init() {
+            var x = 100;
+            var y = 100;
             colors.push(Array(100, 100, 100));
-            squares.push(Array(50, 50, colors[0]));
+            var newNode = new node(null, 'vertical', x, y);
+            squares.push(Array(x, y, colors[0], newNode));
             refreshPixelsColor();
         }
 
@@ -18,7 +40,31 @@
             var y = event.clientY;
             var randomColor = [Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1)];
             colors.push(randomColor);
-            squares.push(new Array(x, y, colors[colors.length-1]));
+
+            var parentNode = getParentNode(x,y);
+
+            var orientation = 'vertical';
+            if(parentNode.orientation == 'vertical'){
+                orientation = 'horizontal';
+            }
+
+            var newNode = new node(parentNode, orientation, x, y);
+
+            if(parentNode.orientation == 'vertical'){
+                if(x > parentNode.x){
+                    parentNode.setChild(0, newNode);
+                } else {
+                    parentNode.setChild(1, newNode);
+                }
+            } else {
+                if(y > parentNode.y){
+                    parentNode.setChild(0, newNode);
+                } else {
+                    parentNode.setChild(1, newNode);
+                }
+            }
+
+            squares.push(new Array(x, y, colors[colors.length-1], newNode));
 
             refreshPixelsColor();
         }
@@ -60,6 +106,14 @@
             }
             context.putImageData(imgData, 0, 0);
             drawSquares(context);
+        }
+
+        function getParentNode(x,y) {
+            var node = squares[0][3];
+            var parentNode = null;
+
+
+            return parentNode;
         }
 
     </script>
