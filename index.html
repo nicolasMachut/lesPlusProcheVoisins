@@ -1,0 +1,93 @@
+<html>
+<head>
+
+    <script>
+
+
+        var couleurs = new Array(Array(100, 100, 100));
+        var carres = new Array(Array(50, 50, couleurs[0]));
+
+        function init() {
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+            var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+            var pixels = imgData.data;
+            var pixelIndex = (y * canvas.width + x) * 4;
+            for (var x =0; x < canvas.width; x++) {
+                for (var y = 0; y < canvas.height; y++) {
+
+
+                    var pixelIndex = (y * canvas.width + x) * 4;
+                    pixels[pixelIndex] = carres[0][2][0];
+                    pixels[pixelIndex + 1] = carres[0][2][1];
+                    pixels[pixelIndex + 2] = carres[0][2][2];
+
+                    pixels[pixelIndex + 3] = 255;
+                }
+            }
+            context.putImageData(imgData, 0, 0);
+            dessinerCarre(50, 50, context);
+
+        }
+
+
+
+        function addCarre(event) {
+            var context = canvas.getContext("2d");
+            var x = event.clientX;
+            var y = event.clientY;
+            var random = [Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1), Math.floor((Math.random() * 255) + 1)];
+            couleurs.push(random);
+            carres.push(new Array(x, y, couleurs[couleurs.length-1]));
+            dessinerCarre(x, y, context);
+            var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+            var pixels = imgData.data;
+
+            for (var x =0; x < canvas.width; x++) {
+                for (var y = 0; y < canvas.height; y++) {
+                    var maxDistance = Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2)+1;
+                    var tmp = 0;
+                    for (var i = 0; i < carres.length; i++) {
+                        var formulResult = Math.pow(x - carres[i][0], 2) + Math.pow(y - carres[i][1], 2);
+                        if (formulResult < maxDistance) {
+                            maxDistance = formulResult;
+                            tmp = i;
+                        }
+                    }
+                    //On redessine le pixel
+                    var pixelIndex = (y * canvas.width + x) * 4;
+                    pixels[pixelIndex] = carres[tmp][2][0];
+                    pixels[pixelIndex + 1] = carres[tmp][2][1];
+                    pixels[pixelIndex + 2] = carres[tmp][2][2];
+
+                    pixels[pixelIndex + 3] = 255;
+                }
+            }
+            context.putImageData(imgData, 0, 0);
+            dessinerLesCarres(context);
+        }
+
+        function dessinerCarre(x, y, context) {
+            context.rect(x, y, 5, 5);
+            context.fillStyle = "#000";
+            context.fill();
+        }
+
+        function dessinerLesCarres (context) {
+            for (var i = 0; i < carres.length; i++) {
+                dessinerCarre(carres[i][0], carres[i][1], context);
+            }
+        }
+
+
+
+    </script>
+
+</head>
+<body onload="init();">
+
+<canvas id="canvas" width="200" height="200" onclick="addCarre(event)"></canvas>
+
+
+</body>
+</html>
